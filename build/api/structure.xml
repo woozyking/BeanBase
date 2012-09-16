@@ -1,0 +1,565 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project version="2.0.0a10" title="">
+  <file path="rbb.php" hash="c01f29ad7bd54bac084b31e7b86e29b2" package="BeanBase">
+    <docblock line="3">
+      <description><![CDATA[MIT License
+===========]]></description>
+      <long-description><![CDATA[<p>Copyright (c) 2012 ruli <a href="&#x6d;&#97;&#x69;&#108;&#x74;&#111;&#x3a;&#x72;&#117;&#x6e;&#122;&#x68;&#111;&#x75;&#46;&#108;&#x69;&#64;&#x67;&#109;&#x61;&#105;&#108;&#x2e;&#99;&#x6f;&#109;">&#x72;&#117;&#x6e;&#122;&#x68;&#111;&#x75;&#46;&#108;&#x69;&#64;&#x67;&#109;&#x61;&#105;&#108;&#x2e;&#99;&#x6f;&#109;</a></p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>]]></long-description>
+      <tag line="3" name="package" description="BeanBase"/>
+      <tag line="3" name="author" description="ruli &lt;runzhou.li@gmail.com&gt;"/>
+      <tag line="3" name="copyright" description="2012 ruli."/>
+      <tag line="3" name="license" description="http://www.opensource.org/licenses/mit-license.php  MIT License"/>
+      <tag line="3" name="link" description="https://github.com/ruli/BeanBase" link="https://github.com/ruli/BeanBase"/>
+      <tag line="3" name="version" description="1.0"/>
+    </docblock>
+    <constant namespace="global" line="42" package="BeanBase\Constants">
+      <name>RB_HAS_ONE</name>
+      <full_name>\RB_HAS_ONE</full_name>
+      <value><![CDATA[0]]></value>
+      <docblock line="36">
+        <description><![CDATA[The association code for ONE-TO-ONE relationship]]></description>
+        <long-description><![CDATA[]]></long-description>
+        <tag line="36" name="package" description="BeanBase"/>
+        <tag line="36" name="subpackage" description="Constants"/>
+      </docblock>
+    </constant>
+    <constant namespace="global" line="50" package="BeanBase\Constants">
+      <name>RB_HAS_MANY</name>
+      <full_name>\RB_HAS_MANY</full_name>
+      <value><![CDATA[1]]></value>
+      <docblock line="44">
+        <description><![CDATA[The association code for ONE-TO-MANY relationship]]></description>
+        <long-description><![CDATA[]]></long-description>
+        <tag line="44" name="package" description="BeanBase"/>
+        <tag line="44" name="subpackage" description="Constants"/>
+      </docblock>
+    </constant>
+    <constant namespace="global" line="58" package="BeanBase\Constants">
+      <name>RB_HAVE_MANY</name>
+      <full_name>\RB_HAVE_MANY</full_name>
+      <value><![CDATA[2]]></value>
+      <docblock line="52">
+        <description><![CDATA[The association code for MANY-TO-MANY relationship]]></description>
+        <long-description><![CDATA[]]></long-description>
+        <tag line="52" name="package" description="BeanBase"/>
+        <tag line="52" name="subpackage" description="Constants"/>
+      </docblock>
+    </constant>
+    <constant namespace="global" line="66" package="BeanBase\Constants">
+      <name>RB_BELONGS_TO</name>
+      <full_name>\RB_BELONGS_TO</full_name>
+      <value><![CDATA[3]]></value>
+      <docblock line="60">
+        <description><![CDATA[The association code for MANY-TO-ONE relationship]]></description>
+        <long-description><![CDATA[]]></long-description>
+        <tag line="60" name="package" description="BeanBase"/>
+        <tag line="60" name="subpackage" description="Constants"/>
+      </docblock>
+    </constant>
+    <class final="false" abstract="false" namespace="global" line="74" package="BeanBase\Exceptions">
+      <extends>\Exception</extends>
+      <name>RbbException</name>
+      <full_name>\RbbException</full_name>
+      <docblock line="68">
+        <description><![CDATA[BeanBase Exception]]></description>
+        <long-description><![CDATA[]]></long-description>
+        <tag line="68" name="package" description="BeanBase"/>
+        <tag line="68" name="subpackage" description="Exceptions"/>
+      </docblock>
+      <property final="false" static="true" visibility="public" line="86" namespace="global" package="Default">
+        <name>$ONE_TO_ONE</name>
+        <default><![CDATA[1]]></default>
+        <docblock line="81">
+          <description><![CDATA[ONE-TO-ONE Error]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="81" name="var" description="" type="integer">
+            <type by_reference="false">integer</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="true" visibility="public" line="93" namespace="global" package="Default">
+        <name>$ONE_TO_MANY</name>
+        <default><![CDATA[2]]></default>
+        <docblock line="88">
+          <description><![CDATA[ONE-TO-MANY Error]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="88" name="var" description="" type="integer">
+            <type by_reference="false">integer</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="true" visibility="public" line="100" namespace="global" package="Default">
+        <name>$MANY_TO_MANY</name>
+        <default><![CDATA[4]]></default>
+        <docblock line="95">
+          <description><![CDATA[MANY-TO-MANY Error]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="95" name="var" description="" type="integer">
+            <type by_reference="false">integer</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="true" visibility="public" line="107" namespace="global" package="Default">
+        <name>$BELONGS_TO</name>
+        <default><![CDATA[8]]></default>
+        <docblock line="102">
+          <description><![CDATA[MANY-TO-ONE Error]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="102" name="var" description="" type="integer">
+            <type by_reference="false">integer</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="true" visibility="public" line="119" namespace="global" package="Default">
+        <name>$CREATE</name>
+        <default><![CDATA[16]]></default>
+        <docblock line="114">
+          <description><![CDATA[CREATE Error]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="114" name="var" description="" type="integer">
+            <type by_reference="false">integer</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="true" visibility="public" line="126" namespace="global" package="Default">
+        <name>$READ</name>
+        <default><![CDATA[32]]></default>
+        <docblock line="121">
+          <description><![CDATA[READ Error]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="121" name="var" description="" type="integer">
+            <type by_reference="false">integer</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="true" visibility="public" line="133" namespace="global" package="Default">
+        <name>$UPDATE</name>
+        <default><![CDATA[64]]></default>
+        <docblock line="128">
+          <description><![CDATA[UPDATE Error]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="128" name="var" description="" type="integer">
+            <type by_reference="false">integer</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="true" visibility="public" line="140" namespace="global" package="Default">
+        <name>$DELETE</name>
+        <default><![CDATA[128]]></default>
+        <docblock line="135">
+          <description><![CDATA[DELETE Error]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="135" name="var" description="" type="integer">
+            <type by_reference="false">integer</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="true" visibility="public" line="153" namespace="global" package="Default">
+        <name>$INVALID_BEAN</name>
+        <default><![CDATA[256]]></default>
+        <docblock line="147">
+          <description><![CDATA[Invalid Bean Error]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="147" name="var" description="" type="integer">
+            <type by_reference="false">integer</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="true" visibility="public" line="159" namespace="global" package="Default">
+        <name>$UNKNOWN</name>
+        <default><![CDATA[1024]]></default>
+        <docblock line="154">
+          <description><![CDATA[Unknown Error]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="154" name="var" description="" type="integer">
+            <type by_reference="false">integer</type>
+          </tag>
+        </docblock>
+      </property>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="global" line="168" package="BeanBase\Exceptions">
+        <name>__construct</name>
+        <full_name>__construct</full_name>
+        <docblock line="161">
+          <description><![CDATA[Makes $message and $code required.]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="161" name="param" description="Error message" type="string" variable="$message">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="161" name="param" description="Error Code" type="int" variable="$code">
+            <type by_reference="false">int</type>
+          </tag>
+          <tag line="161" name="param" description="Previous error in the trace" type="\Exception" variable="$previous">
+            <type by_reference="false">\Exception</type>
+          </tag>
+        </docblock>
+        <argument line="168">
+          <name>$message</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="168">
+          <name>$code</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="168">
+          <name>$previous</name>
+          <default><![CDATA[null]]></default>
+          <type>\Exception</type>
+        </argument>
+      </method>
+    </class>
+    <class final="false" abstract="false" namespace="global" line="180" package="BeanBase\Utils">
+      <extends/>
+      <name>RBB</name>
+      <full_name>\RBB</full_name>
+      <docblock line="174">
+        <description><![CDATA[RedBean Base Utility Class]]></description>
+        <long-description><![CDATA[]]></long-description>
+        <tag line="174" name="package" description="BeanBase"/>
+        <tag line="174" name="subpackage" description="Utils"/>
+      </docblock>
+      <method final="false" abstract="false" static="true" visibility="public" namespace="global" line="198" package="BeanBase\Utils">
+        <name>create</name>
+        <full_name>create</full_name>
+        <docblock line="187">
+          <description><![CDATA[Create a new bean with given type, data and an optional filter.]]></description>
+          <long-description><![CDATA[<p>This method uses array_diff_key( $data, $filter ) to filter out unwanted keys mentioned in $filter</p>]]></long-description>
+          <tag line="187" name="param" description="The bean type (table name) to be created" type="string" variable="$type">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="187" name="param" description="Data kv-array" type="mixed" variable="$data">
+            <type by_reference="false">mixed</type>
+          </tag>
+          <tag line="187" name="param" description="Contains all the keys to be filtered out of $data" type="array" variable="$filter">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="187" name="return" description="The created bean" type="\RedBean_OODBBean">
+            <type by_reference="false">\RedBean_OODBBean</type>
+          </tag>
+        </docblock>
+        <argument line="198">
+          <name>$type</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="198">
+          <name>$data</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="198">
+          <name>$filter</name>
+          <default><![CDATA[array()]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="true" visibility="public" namespace="global" line="218" package="BeanBase\Utils">
+        <name>read</name>
+        <full_name>read</full_name>
+        <docblock line="208">
+          <description><![CDATA[Read a bean with given ID and type]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="208" name="param" description="The bean ID" type="int" variable="$id">
+            <type by_reference="false">int</type>
+          </tag>
+          <tag line="208" name="param" description="The bean type" type="string" variable="$type">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="208" name="return" description="The loaded bean" type="\RedBean_OODBBean">
+            <type by_reference="false">\RedBean_OODBBean</type>
+          </tag>
+          <tag line="208" name="throws" description="If a bean cannot be loaded" type="\RbbException">
+            <type by_reference="false">\RbbException</type>
+          </tag>
+        </docblock>
+        <argument line="218">
+          <name>$id</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="218">
+          <name>$type</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="true" visibility="public" namespace="global" line="245" package="BeanBase\Utils">
+        <name>update</name>
+        <full_name>update</full_name>
+        <docblock line="230">
+          <description><![CDATA[Update a bean with given data and an optional filter]]></description>
+          <long-description><![CDATA[<p>This method uses array_diff_key( $data, $filter ) to filter out unwanted keys mentioned in $filter</p>
+
+<p>This method does not validate the fed in data ($data)</p>]]></long-description>
+          <tag line="230" name="param" description="The bean to be updated" type="\RedBean_OODBBean" variable="$bean">
+            <type by_reference="false">\RedBean_OODBBean</type>
+          </tag>
+          <tag line="230" name="param" description="Data kv-array" type="mixed" variable="$data">
+            <type by_reference="false">mixed</type>
+          </tag>
+          <tag line="230" name="param" description="Contains all the keys to be filtered out of $data" type="array" variable="$filter">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="230" name="return" description="The updated bean" type="\RedBean_OODBBean">
+            <type by_reference="false">\RedBean_OODBBean</type>
+          </tag>
+          <tag line="230" name="throws" description="If a bean is not valid" type="\RbbException">
+            <type by_reference="false">\RbbException</type>
+          </tag>
+        </docblock>
+        <argument line="245">
+          <name>$bean</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="245">
+          <name>$data</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="245">
+          <name>$filter</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="true" visibility="public" namespace="global" line="273" package="BeanBase\Utils">
+        <name>associcate</name>
+        <full_name>associcate</full_name>
+        <docblock line="262">
+          <description><![CDATA[Associate bean and rel_bean.]]></description>
+          <long-description><![CDATA[<p>This method writes back to DB after association has been established.</p>]]></long-description>
+          <tag line="262" name="todo" description="Fully implement all associations mentioned in http://www.redbeanphp.com/manual/docs/connectingbeans01"/>
+          <tag line="262" name="param" description="The bean (the pivot)" type="\RedBean_OODBBean" variable="$bean">
+            <type by_reference="false">\RedBean_OODBBean</type>
+          </tag>
+          <tag line="262" name="param" description="The bean to be associated" type="\RedBean_OODBBean" variable="$rel_bean">
+            <type by_reference="false">\RedBean_OODBBean</type>
+          </tag>
+          <tag line="262" name="param" description="The constant representing one of the defined relationship codes" type="\const" variable="$code">
+            <type by_reference="false">\const</type>
+          </tag>
+          <tag line="262" name="throws" description="" type="\RbbException">
+            <type by_reference="false">\RbbException</type>
+          </tag>
+        </docblock>
+        <argument line="273">
+          <name>$bean</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="273">
+          <name>$rel_bean</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="273">
+          <name>$code</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+    </class>
+    <class final="false" abstract="false" namespace="global" line="348" package="BeanBase\Models">
+      <extends/>
+      <name>BaseModel</name>
+      <full_name>\BaseModel</full_name>
+      <docblock line="342">
+        <description><![CDATA[A base model to work with]]></description>
+        <long-description><![CDATA[]]></long-description>
+        <tag line="342" name="package" description="BeanBase"/>
+        <tag line="342" name="subpackage" description="Models"/>
+      </docblock>
+      <property final="false" static="false" visibility="protected" line="355" namespace="global" package="Default">
+        <name>$_type</name>
+        <default><![CDATA[""]]></default>
+        <docblock line="350">
+          <description><![CDATA[The bean type name]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="350" name="var" description="Bean type" type="string">
+            <type by_reference="false">string</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="protected" line="362" namespace="global" package="Default">
+        <name>$_pk</name>
+        <default><![CDATA["id"]]></default>
+        <docblock line="357">
+          <description><![CDATA[The primary key (as a string) or keys (as an array with string keys)]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="357" name="var" description="| array Primary Key(s)" type="string">
+            <type by_reference="false">string</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="protected" line="376" namespace="global" package="Default">
+        <name>$_has_one</name>
+        <default><![CDATA[array()]]></default>
+        <docblock line="369">
+          <description><![CDATA[ONE current type has ONE (of each) mentioned types in this array]]></description>
+          <long-description><![CDATA[<p>Simple ONE-TO-ONE</p>]]></long-description>
+          <tag line="369" name="var" description="String keys represent bean types" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="protected" line="385" namespace="global" package="Default">
+        <name>$_has_many</name>
+        <default><![CDATA[array()]]></default>
+        <docblock line="378">
+          <description><![CDATA[ONE current type has MANY (of each) mentioned types in this array]]></description>
+          <long-description><![CDATA[<p>Simple ONE-TO-MANY</p>]]></long-description>
+          <tag line="378" name="var" description="String keys represent bean types" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="protected" line="394" namespace="global" package="Default">
+        <name>$_have_many</name>
+        <default><![CDATA[array()]]></default>
+        <docblock line="387">
+          <description><![CDATA[MANY current type have MANY (of each) mentioned types in this array]]></description>
+          <long-description><![CDATA[<p>Simple MANY-TO-MANY</p>]]></long-description>
+          <tag line="387" name="var" description="String keys represent bean types" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="protected" line="403" namespace="global" package="Default">
+        <name>$_belongs_to</name>
+        <default><![CDATA[array()]]></default>
+        <docblock line="396">
+          <description><![CDATA[MANY current type belongs to each mentioned parent type in this array]]></description>
+          <long-description><![CDATA[<p>Simple MANY-TO-ONE</p>]]></long-description>
+          <tag line="396" name="var" description="The parent type" type="string">
+            <type by_reference="false">string</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="protected" line="420" namespace="global" package="Default">
+        <name>$_reserved_fields</name>
+        <default><![CDATA[array('_deleted', '_created', '_updated', '_type')]]></default>
+        <docblock line="410">
+          <description><![CDATA[Reserved fields which (normally) should not be altered
+Default reserved fields:
+  _deleted - flag indicating whether the bean is 'soft' deleted
+  _created - timestamp indicating when bean is created
+  _updated - timestamp indicating when bean is updated
+  _type    - bean type name for access convenience]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="410" name="var" description="String keys represent reserved fields" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="protected" line="432" namespace="global" package="Default">
+        <name>$_create_fields</name>
+        <default><![CDATA[array()]]></default>
+        <docblock line="427">
+          <description><![CDATA[These fields must be met when trying to create a new bean of the current type]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="427" name="var" description="String keys represent the required fields when creating a new bean" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="protected" line="439" namespace="global" package="Default">
+        <name>$_update_fields</name>
+        <default><![CDATA[array()]]></default>
+        <docblock line="434">
+          <description><![CDATA[These fields must be met when trying to update an existing bean]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="434" name="var" description="String keys represent the required fields when updating an existing bean" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+      </property>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="global" line="447" package="BeanBase\Models">
+        <name>post</name>
+        <full_name>post</full_name>
+        <argument line="447">
+          <name>$request_data</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="global" line="451" package="BeanBase\Models">
+        <name>get</name>
+        <full_name>get</full_name>
+        <argument line="451">
+          <name>$id</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="global" line="455" package="BeanBase\Models">
+        <name>put</name>
+        <full_name>put</full_name>
+        <argument line="455">
+          <name>$id</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="455">
+          <name>$request_data</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="global" line="459" package="BeanBase\Models">
+        <name>delete</name>
+        <full_name>delete</full_name>
+        <argument line="459">
+          <name>$id</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="459">
+          <name>$soft</name>
+          <default><![CDATA[false]]></default>
+          <type/>
+        </argument>
+      </method>
+    </class>
+    <markers>
+      <todo line="291">Need a better solution</todo>
+    </markers>
+    <parse_markers>
+      <error line="447" code="50010">No DocBlock was found for method post()</error>
+      <error line="451" code="50010">No DocBlock was found for method get()</error>
+      <error line="455" code="50010">No DocBlock was found for method put()</error>
+      <error line="459" code="50010">No DocBlock was found for method delete()</error>
+    </parse_markers>
+  </file>
+  <package name="BeanBase" full_name="BeanBase">
+    <package name="Constants" full_name="BeanBase\Constants"/>
+    <package name="Exceptions" full_name="BeanBase\Exceptions"/>
+    <package name="Models" full_name="BeanBase\Models"/>
+    <package name="Utils" full_name="BeanBase\Utils"/>
+  </package>
+  <package name="Default" full_name="Default"/>
+  <namespace name="global" full_name="global"/>
+  <marker count="2">todo</marker>
+  <marker count="0">fixme</marker>
+  <deprecated count="0"/>
+</project>
