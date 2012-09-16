@@ -6,9 +6,11 @@ A way to start using RedBean PHP ORM
 Components
 ========
 
-* A Base Model (models\base.php): Aims to be a very generic model to be extended.
+* A Base Model (Models\BaseModel): Aims to be a very generic model to be extended.
 
-* An Utility Class (utils\beanbase.php): So far this only includes operations that wrap around R::someThing() for convenience (to certain extent). Ultimately the goal is to have this utility class as *the* BeanBase that includes things that RedBean PHP doesn't offer, such as Query Builder to generate SQL strings to be used with R::exec().
+* An Utility Class (Utils\RBB)
+  * Soft create and update, and read.
+  * Associate method handling simple ONE-TO-ONE, ONE-TO-MANY, MANY-TO-MANY, and MANY-TO-ONE (reversed ONE-TO-MANY)
 
 Others
 ========
