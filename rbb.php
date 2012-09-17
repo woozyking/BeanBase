@@ -149,14 +149,27 @@ class RbbException extends Exception {
    *
    * @var integer
    */
-
   public static $INVALID_BEAN = 256;
+
+  /**
+   * Incomplete Error
+   *
+   * @var integer
+   */
+  public static $INCOMPLETE = 512;
+
+  /**
+   * Unique Error
+   * @var integer
+   */
+  public static $UNIQUE = 1024;
+
   /**
    * Unknown Error
    *
    * @var integer
    */
-  public static $UNKNOWN = 1024;
+  public static $UNKNOWN = 65536;
 
   /**
    * Makes $message and $code required.
@@ -202,7 +215,13 @@ class RBB {
       $data = array_diff_key( $data, $filter );
     }
 
-    return $bean->import( $data );
+    $bean = $bean->import( $data );
+
+    if ( !isset($bean) ) {
+      throw new RbbException( 'Cannot create bean', RbbException::$UNKNOWN );
+    }
+
+    return $bean;
   }
 
   /**
@@ -259,6 +278,19 @@ class RBB {
   // Relational Operations
   //
   // ------------------------------------------------------------------
+
+  public static function relate( $bean, $data, $filter ) {
+    foreach ( $filter as $rel_type => $code ) {
+      $id_key = $rel_type.'_id';
+
+      if ( array_key_exists($id_key, $data) ) {
+        $rel_bean = self::read( $data[$id_key] );
+
+        self::associate( $bean, $rel_bean, $code );
+      }
+    }
+  }
+
   /**
    * Associate bean and rel_bean. This method writes back to DB after association has been established.
    *
@@ -337,6 +369,64 @@ class RBB {
     }
   }
 
+  // ==================================================================
+  //
+  // Other Utils
+  //
+  // ------------------------------------------------------------------
+  /**
+   * Checks whether a given data array is complete, against a key array filter
+   *
+   * @param  mixed  $data   Data kv-array
+   * @param  array  $filter Key array that contains all the required keys
+   */
+  public static function completeness_check( $data, $filter ) {
+    foreach ( $filter as $key ) {
+      if ( !isset($data[$key]) || empty($data[$key]) ) {
+        throw new RbbException( 'Missing '.$key.' from given data', RbbException::$INCOMPLETE );
+      }
+    }
+  }
+
+  /**
+   * Checks whether a bean is unique, against a key array filter
+   *
+   * Make sure to use this before saving the bean into the database
+   *
+   * @param  RedBean_OODBBean  $bean   The bean to be checked
+   * @param  array             $filter Key array that contains all the unique fields to be verified
+   */
+  public static function uniqueness_check( $data, $type, $filter ) {
+    $filtered = self::strip_data( $data, $filter );
+
+    foreach ($filtered as $key => $value) {
+      $verify = R::findOne( $type, $key.'=?', array($value) );
+
+      if ( isset($verify) ) {
+        throw new RbbException( 'A bean already exists with '.$key.' = '.$value, RbbException::$UNIQUE );
+      }
+    }
+  }
+
+  /**
+   * Strip a data array against a filter
+   *
+   * @param  mixed $data   Data kv-array
+   * @param  array $filter Key array that contains the only keys needed from $data
+   * @return mixed         Filtered kv-array with no kv's that are not mentioned by $filter
+   */
+  public static function strip_data( $data, $filter ) {
+    $filtered = array();
+
+    foreach ($filter as $key ) {
+      if ( array_key_exists($key, $data) ) {
+        $filtered[$key] = $data[$key];
+      }
+    }
+
+    return $filtered;
+  }
+
 }
 
 /**
@@ -355,52 +445,24 @@ class BaseModel {
   protected $_type = "";
 
   /**
-   * The primary key (as a string) or keys (as an array with string keys)
+   * The primary key(s) of a bean type
    *
-   * @var string | array Primary Key(s)
+   * @var array Primary Key(s)
    */
-  protected $_pk = "id";
+  protected $_pk = array( 'id' );
 
-  // ==================================================================
-  //
-  // Relational Definitions
-  //
-  // ------------------------------------------------------------------
-  /**
-   * ONE current type has ONE (of each) mentioned types in this array
-   *
-   * Simple ONE-TO-ONE
-   *
-   * @var array String keys represent bean types
-   */
-  protected $_has_one = array();
 
   /**
-   * ONE current type has MANY (of each) mentioned types in this array
+   * Association filter
    *
-   * Simple ONE-TO-MANY
-   *
-   * @var array String keys represent bean types
+   * @var array Data kv-array with a format of bean_type => association_code
    */
-  protected $_has_many = array();
-
-  /**
-   * MANY current type have MANY (of each) mentioned types in this array
-   *
-   * Simple MANY-TO-MANY
-   *
-   * @var array String keys represent bean types
-   */
-  protected $_have_many = array();
-
-  /**
-   * MANY current type belongs to each mentioned parent type in this array
-   *
-   * Simple MANY-TO-ONE
-   *
-   * @var string The parent type
-   */
-  protected $_belongs_to = array();
+  protected $_asso_filter = array(
+    // 'bean_type' => RB_HAS_ONE,
+    // 'bean_type' => RB_HAS_MANY,
+    // 'bean_type' => RB_HAVE_MANY,
+    // 'bean_type' => RB_BELONGS_TO
+  );
 
   // ==================================================================
   //
@@ -429,14 +491,21 @@ class BaseModel {
    *
    * @var array String keys represent the required fields when creating a new bean
    */
-  protected $_create_fields = array(); // required create fields
+  protected $_post_fields = array(); // required create fields
 
   /**
    * These fields must be met when trying to update an existing bean
    *
    * @var array String keys represent the required fields when updating an existing bean
    */
-  protected $_update_fields = array(); // required update fields
+  protected $_put_fields = array(); // required update fields
+
+  /**
+   * Fields that should be unique in a bean type
+   *
+   * @var array String keys represent unique fields
+   */
+  protected $_unique_fields = array();
 
   // ==================================================================
   //
@@ -445,15 +514,56 @@ class BaseModel {
   // ------------------------------------------------------------------
 
   public function post( $request_data ) {
+    // Check whether the data is complete
+    if ( !empty($this->_post_fields) ) {
+      RBB::completeness_check( $request_data, $this->_post_fields );
+    }
 
+    // Check whether the data is unique
+    if ( !empty($this->_unique_fields) ) {
+      RBB::uniqueness_check( $request_data, $this->_type, $this->_unique_fields );
+    }
+
+    // Create bean
+    $bean = RBB::create( $this->_type, $request_data );
+
+    // Process association filter if applicable
+    if ( !empty($this->_asso_filter) ) {
+      RBB::relate( $bean, $request_data, $this->_asso_filter );
+    } else {
+      R::store( $bean );
+    }
+
+    // Return created bean
+    return $bean;
   }
 
   public function get( $id ) {
-
+    return RBB::read( $id, $this->_type );
   }
 
   public function put( $id, $request_data ) {
+    // Check whether the request data is complete
+    if ( !empty($this->_put_fields) ) {
+      RBB::completeness_check( $request_data, $this->_post_fields );
+    }
 
+    // Check whether the data is unique
+    if ( !empty($this->_unique_fields) ) {
+      RBB::uniqueness_check( $request_data, $this->_type, $this->_unique_fields );
+    }
+
+    $bean = $this->get( $id );
+
+    // Process association filter if applicable
+    if ( !empty($this->_asso_filter) ) {
+      RBB::relate( $bean, $request_data, $this->_asso_filter );
+    } else {
+      R::store( $bean );
+    }
+
+    // Return created bean
+    return $bean;
   }
 
   public function delete( $id ) {
