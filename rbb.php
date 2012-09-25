@@ -278,7 +278,13 @@ class RBB {
   // Relational Operations
   //
   // ------------------------------------------------------------------
-
+  /**
+   * Relate a bean with potential rel_bean contained in data, and a given filter
+   *
+   * @param  RedBean_OOOBBean $bean   The bean
+   * @param  mixed            $data   The data
+   * @param  mixed            $filter KV array with a format of rel_type => code
+   */
   public static function relate( $bean, $data, $filter ) {
     foreach ( $filter as $rel_type => $code ) {
       $id_key = $rel_type.'_id';
@@ -296,8 +302,8 @@ class RBB {
    *
    * @todo   Fully implement all associations mentioned in http://www.redbeanphp.com/manual/docs/connectingbeans01
    *
-   * @param  RedBean_OODBBean  $bean     The bean (the pivot)
-   * @param  RedBean_OODBBean  $rel_bean The bean to be associated
+   * @param  RedBean_OODBBean  $bean     The bean
+   * @param  RedBean_OODBBean  $rel_bean The rel_bean to be associated
    * @param  const             $code     The constant representing one of the defined relationship codes
    *
    * @throws RbbException
@@ -375,12 +381,24 @@ class RBB {
   //
   // ------------------------------------------------------------------
   /**
+   * Get the given bean's type (table name)
+   *
+   * @param  RedBean_OODBBean $bean The bean
+   * @return string                 The type name
+   */
+  public static function get_type( $bean ) {
+    return $bean->getMeta( 'type' );
+  }
+
+  /**
    * Checks whether a given data array is complete, against a key array filter
    *
    * @param  mixed  $data   Data kv-array
    * @param  array  $filter Key array that contains all the required keys
    */
-  public static function completeness_check( $data, $filter ) {
+  public static function completeness_check( $bean, $filter ) {
+    $data = $bean->export();
+
     foreach ( $filter as $key ) {
       if ( !isset($data[$key]) || empty($data[$key]) ) {
         throw new RbbException( 'Missing '.$key.' from given data', RbbException::$INCOMPLETE );
@@ -396,11 +414,11 @@ class RBB {
    * @param  RedBean_OODBBean  $bean   The bean to be checked
    * @param  array             $filter Key array that contains all the unique fields to be verified
    */
-  public static function uniqueness_check( $data, $type, $filter ) {
-    $filtered = self::strip_data( $data, $filter );
+  public static function uniqueness_check( $bean, $filter ) {
+    $filtered = self::strip_data( $bean->export(), $filter );
 
     foreach ($filtered as $key => $value) {
-      $verify = R::findOne( $type, $key.'=?', array($value) );
+      $verify = R::findOne( self::get_type($bean), $key.'=?', array($value) );
 
       if ( isset($verify) ) {
         throw new RbbException( 'A bean already exists with '.$key.' = '.$value, RbbException::$UNIQUE );
@@ -445,14 +463,6 @@ class BaseModel {
   protected $_type = "";
 
   /**
-   * The primary key(s) of a bean type
-   *
-   * @var array Primary Key(s)
-   */
-  protected $_pk = array( 'id' );
-
-
-  /**
    * Association filter
    *
    * @var array Data kv-array with a format of bean_type => association_code
@@ -472,18 +482,17 @@ class BaseModel {
   /**
    * Reserved fields which (normally) should not be altered
    * Default reserved fields:
-   *   _deleted - flag indicating whether the bean is 'soft' deleted
-   *   _created - timestamp indicating when bean is created
-   *   _updated - timestamp indicating when bean is updated
-   *   _type    - bean type name for access convenience
+   *   deleted - flag indicating whether the bean is 'soft' deleted
+   *   created - timestamp indicating when bean is created
+   *   updated - timestamp indicating when bean is updated
    *
    * @var array String keys represent reserved fields
    */
   protected $_reserved_fields = array(
-    '_deleted', // only be altered by delete() and recover()
-    '_created', // only be altered by post()
-    '_updated', // only be altered by update()
-    '_type'     // only be altered by post()
+    // Default fields
+    'deleted' => 'deleted', // only be altered by delete() and recover()
+    'created' => 'created', // only be altered by post()
+    'updated' => 'updated', // only be altered by update()
   );
 
   /**
@@ -514,18 +523,18 @@ class BaseModel {
   // ------------------------------------------------------------------
 
   public function post( $request_data ) {
+    // Create bean
+    $bean = RBB::create( $this->_type, $request_data );
+
     // Check whether the data is complete
     if ( !empty($this->_post_fields) ) {
-      RBB::completeness_check( $request_data, $this->_post_fields );
+      RBB::completeness_check( $bean, $this->_post_fields );
     }
 
     // Check whether the data is unique
     if ( !empty($this->_unique_fields) ) {
-      RBB::uniqueness_check( $request_data, $this->_type, $this->_unique_fields );
+      RBB::uniqueness_check( $bean, $this->_unique_fields );
     }
-
-    // Create bean
-    $bean = RBB::create( $this->_type, $request_data );
 
     // Process association filter if applicable
     if ( !empty($this->_asso_filter) ) {
@@ -543,17 +552,17 @@ class BaseModel {
   }
 
   public function put( $id, $request_data ) {
+    $bean = $this->get( $id );
+
     // Check whether the request data is complete
     if ( !empty($this->_put_fields) ) {
-      RBB::completeness_check( $request_data, $this->_post_fields );
+      RBB::completeness_check( $bean, $this->_post_fields );
     }
 
     // Check whether the data is unique
     if ( !empty($this->_unique_fields) ) {
-      RBB::uniqueness_check( $request_data, $this->_type, $this->_unique_fields );
+      RBB::uniqueness_check( $bean, $this->_unique_fields );
     }
-
-    $bean = $this->get( $id );
 
     // Process association filter if applicable
     if ( !empty($this->_asso_filter) ) {
@@ -566,10 +575,16 @@ class BaseModel {
     return $bean;
   }
 
-  public function delete( $id ) {
+  public function delete( $id, $soft = false ) {
     $bean = RBB::read( $id, $this->_type );
 
-    R::trash( $bean );
+    if ( $soft ) {
+      $bean->deleted = true;
+
+      R::store( $bean );
+    } else {
+      R::trash( $bean );
+    }
   }
 
   // ==================================================================
@@ -577,6 +592,27 @@ class BaseModel {
   // Count, Batch, Query
   //
   // ------------------------------------------------------------------
+  /**
+   * The number of beans in this type
+   *
+   * @return int Number of beans
+   */
+  public function count() {
+    return R::count( $this->_type );
+  }
 
+  /**
+   * Count number of beans by WHERE
+   * @todo   Add RedBean version check
+   * @since  2.0
+   * @return int Number of beans
+   */
+  public function count_by( $col, $val ) {
+    return R::count( $this->_type, 'WHERE '.$col.'=?', array($val) );
+  }
+
+  public function batch_get( $query_array ) {
+
+  }
 
 }
