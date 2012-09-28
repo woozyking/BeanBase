@@ -43,11 +43,13 @@
 /**
  * BeanBase Base Model
  *
+ * Modified to extend CI_Model
+ *
  * @abstract
  * @package BeanBase
  * @subpackage Model
  */
-class BaseModel {
+class MY_Model extends CI_Model {
 
   /**
    * The bean type name
@@ -104,6 +106,10 @@ class BaseModel {
    * @var array String keys represent unique fields
    */
   protected $_unique_fields = array();
+
+  public function __construct() {
+    parent::__construct();
+  }
 
   // ==================================================================
   //
@@ -343,3 +349,5 @@ class BaseModel {
   }
 
 }
+
+/* core\MY_Model.php */
