@@ -92,23 +92,21 @@ class RBB {
   /**
    * Create a new bean with given type, data and an optional filter.
    *
-   * This method uses array_diff_key( $data, $filter ) to filter out unwanted keys mentioned in $filter
-   *
    * @param  string $type   The bean type (table name) to be created
-   * @param  array  $data   Data kv-array
-   * @param  array  $filter Contains all the keys to be filtered out of $data
+   * @param  array  $data   Data kv-array, default: null
+   * @param  array  $filter Contains all the keys to be filtered out of $data, default: null
    *
    * @return RedBean_OODBBean The created bean
    */
-  public static function create( $type, array $data, array $filter=null ) {
-    if ( !self::is_assoc($data) ) {
+  public static function create( $type, array $data=null, array $filter=null ) {
+    if ( !is_null($data) && !self::is_assoc($data) ) {
       throw new InvalidArgumentException( 'Data array must be associative' );
     }
 
     $bean = R::dispense( $type );
 
     if ( !empty($filter) ) {
-      $data = array_diff_key( $data, $filter );
+      $data = self::strip_out( $data, $filter );
     }
 
     $bean = $bean->import( $data );
@@ -139,8 +137,6 @@ class RBB {
   /**
    * Update a bean with given data and an optional filter
    *
-   * This method uses array_diff_key( $data, $filter ) to filter out unwanted keys mentioned in $filter
-   *
    * This method does not validate the fed in data ($data)
    *
    * @param  RedBean_OODBBean $bean   The bean to be updated
@@ -149,18 +145,20 @@ class RBB {
    *
    * @return RedBean_OODBBean         The updated bean
    */
-  public static function update( RedBean_OODBBean $bean, array $data, array $filter=null ) {
-    if ( !self::is_assoc($data) ) {
+  public static function update( RedBean_OODBBean $bean, array $data=null, array $filter=null ) {
+    if ( !is_null($data) && !self::is_assoc($data) ) {
       throw new InvalidArgumentException( 'Data array must be associative' );
     }
 
+    $dup = R::dup( $bean );
+
     if ( !empty($filter) ) {
-      $data = array_diff_key( $data, $filter );
+      $data = self::strip_out( $data, $filter );
     }
 
-    $bean->import( $data );
+    $dup->import( $data );
 
-    return $bean;
+    return $dup;
   }
 
   // ==================================================================
@@ -305,59 +303,55 @@ class RBB {
   }
 
   /**
-   * Checks whether a given bean complete, against a key array filter
+   * Checks whether a given bean is complete, against a keys array
    *
-   * @param  RedBean_OODBBean $bean   [description]
-   * @param  array            $filter [description]
+   * @param  array   $data   The data kv-array
+   * @param  array   $keys   The keys array
+   *
+   * @return boolean         True if the data is complete, otherwise false
    */
-  public static function completeness_check( RedBean_OODBBean $bean, array $filter ) {
-    $data = $bean->export();
-
-    foreach ( $filter as $key ) {
-      if ( !isset($data[$key]) || empty($data[$key]) ) {
-        throw new BeanBase_Exception( 'Missing '.$key.' from given data', BeanBase_Exception::INCOMPLETE );
+  public static function is_complete( array $data, array $keys ) {
+    foreach ( $keys as $key ) {
+      if ( !array_key_exists($key, $data) ) {
+        return false;
       }
     }
+
+    return true;
   }
 
   /**
-   * Checks whether a bean is unique, against a key array filter
+   * Filter out unwanted key-value pairs from $data, by a given array of unwanted keys
    *
-   * Make sure to use this before saving the bean into the database
+   * Works the opposite way of keep_only()
    *
-   * @param  RedBean_OODBBean  $bean   The bean to be checked
-   * @param  array             $filter Key array that contains all the unique fields to be verified
+   * @param  array  $data Data kv-array
+   * @param  array  $keys Key array that contains the keys that are to be removed from $data
+   * @return array        Filtered kv-array
    */
-  public static function uniqueness_check( RedBean_OODBBean $bean, array $filter ) {
-    $filtered = self::strip_data( $bean->export(), $filter );
-
-    foreach ($filtered as $key => $value) {
-      $verify = R::findOne( self::get_bean_type($bean), $key.'=?', array($value) );
-
-      if ( isset($verify) ) {
-        throw new BeanBase_Exception( 'A bean already exists with '.$key.' = '.$value, BeanBase_Exception::UNIQUE );
+  public static function strip_out( array $data, array $keys ) {
+    foreach ( $keys as $key ) {
+      if ( array_key_exists($key, $data) ) {
+        unset( $data[$key] );
       }
     }
+
+    return $data;
   }
 
   /**
-   * Strip a data array against a filter.
+   * Filter out unwanted from $data, by a given array of wanted keys
    *
-   * This method behaves pretty much like the opposite of
-   * the built-in array_diff_key() function
+   * Works the opposite way of strip_out()
    *
    * @param  array $data   Data kv-array
-   * @param  array $filter Key array that contains the only keys needed from $data
-   * @return array         Filtered kv-array only with kv's mentioned by the filter
+   * @param  array $keys   Key array that contains the only keys needed from $data
+   * @return array         Filtered kv-array
    */
-  public static function strip_data( array $data, array $filter ) {
-    if ( !self::is_assoc($data) ) {
-      throw new InvalidArgumentException( 'Data array must be associative' );
-    }
-
+  public static function keep_only( array $data, array $keys ) {
     $filtered = array();
 
-    foreach ( $filter as $key ) {
+    foreach ( $keys as $key ) {
       if ( array_key_exists($key, $data) ) {
         $filtered[$key] = $data[$key];
       }
@@ -371,17 +365,16 @@ class RBB {
    *
    * @param  RedBean_OODBBean $bean        The bean
    * @param  string           $property    The property of the bean
-   * @param  string           $time        Time, default: 'now'
+   * @param  DateTime         $timestamp   DateTime object
    * @param  string           $time_format Time format, default: 'Y-m-d H:i:s'
    *
    * @return RedBean_OODBBean              The modified bean
    */
-  public static function insert_time_stamp( RedBean_OODBBean $bean, $property, $time='now', $time_format='Y-m-d H:i:s' ) {
+  public static function insert_timestamp( RedBean_OODBBean $bean, $property, DateTime $timestamp, $time_format='Y-m-d H:i:s' ) {
     if ( !is_string($property) ) {
       throw new InvalidArgumentException( 'Timestamp property must be a string' );
     }
 
-    $timestamp          = new DateTime( $time );
     $bean->$property = $timestamp->format( $time_format );
 
     return $bean;

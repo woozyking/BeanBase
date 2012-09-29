@@ -1,73 +1,33 @@
 BeanBase
 ========
 
-A way to start using RedBean PHP ORM
+A way to start using [RedBean PHP ORM](http://redbeanphp.com/)
+
+> Notice: BeanBase requires [rb.php](http://redbeanphp.com/) but does not ship with it, so grab it now!
+
+* Based on [RedBean PHP ORM](http://redbeanphp.com/)
+* Aims to make RedBean even easier to use with BeanBase utility class
+* Offers a BaseModel to start modeling your data with ease. Unlike FUSE (that's bundled with RedBean), this BaseModel is rather old fashioned which could be used in almost all PHP MVC frameworks (see [Integrations](#integrations)). Though you're definitely encouraged to checkout [FUSE](http://redbeanphp.com/manual/models_and_fuse) which is really neat and powerful.
 
 Components
 ==========
 
-* RBB: An utility class that wraps on top of RedBean PHP. Aims to provide convenient methods to operate beans and their relationships.
-* BaseModel: Aims to be a very generic model to be extended. Leverages the power of RBB and RedBean PHP ORM.
+* RBB: utility class that wraps on top of RedBean
+* BaseModel: a base model that offers out of the box CRUD operations, relational operations, and other utilities to help with your DB interaction needs, by leveraging the power of RBB.
 
 Integrations
 ============
 
-CI (CodeIgniter)
-----------------
+* CI (CodeIgniter) at [BeanBase-CI](https://github.com/ruli/BeanBase-CI)
 
-> Notice: you must place [rb.php](http://redbeanphp.com/) in `CI/application/third_party` directory for BeanBase to work.
+Testing
+=======
 
-A way to start using RedBean (and BeanBase) with CodeIgniter Framework. Integration method provided by [Boris Strahija](http://creolab.hr/2011/02/redbean-codeigniter-take-2/).
-
-What you'll get is out of the box RedBean and BeanBase support (R::xyz and RBB::abc) in your CI applications, as well as the masked BaseModel (renamed to MY_Model to fit CI standard) to simplify the creation of your CI models. At a glance:
-```php
-// A Something Model
-class Something_model extends MY_Model {
-
-  // The only required property to be overridden
-  protected $_type = "something";
-
-  // The rest could be blank and use as is
-  // or add/override with your own sauce
-}
-
-// The Something Controller
-class Something extends CI_Controller {
-
-  public function __construct() {
-    parent::__construct();
-
-    // To save trees, alias Something_model as pm in this controller
-    $this->load->model( 'Something_model', 's' );
-  }
-
-  public function new() {
-    // Get user request data
-    // Suppose it has everything we need
-    // and nothing we don't
-    $request_data = $this->input->post();
-
-    // Create and store the bean with $request_data
-    // Side notes: instead of create(), BaseModel CRUD methods embrace HTTP verbs
-    $bean = $this->s->post( $request_data );
-
-    // Prepare feedback data to be presented in view
-    $wanted_filter = array( /* Keys that we're looking for to be kept for view */ );
-    $feedback_data = $bean->export(); // export bean as an array
-    $feedback_data = RBB::strip_data( $feedback_data, $wanted_filter ); // strip out unwanted and keep the wanted
-
-    // Serve it with the (supposedly-already made) view
-    $this->load->view('Something_view', $feedback_data);
-  }
-
-}
-```
-
-If you're looking for a more (CI) native solution in terms of a base model, please check out jamierumbelow's [codeigniter-base-model](https://github.com/jamierumbelow/codeigniter-base-model), which uses CI's Active Record class to its greatest extent.
+Testing are done through [SimpleTest](http://www.simpletest.org/). Tests don't cover RedBean itself.
 
 Things To Be Done
 =================
 
-* Unit test
 * Travis-CI
+* [Restler](http://luracast.com/products/restler/) integration
 * Examples and Manual

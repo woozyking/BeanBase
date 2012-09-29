@@ -1,1 +1,5 @@
 .DS_Store
+.temp.*
+rb.php
+tests/vendor/*
+tests/config/my.*

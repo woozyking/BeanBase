@@ -193,9 +193,14 @@ class BaseModel {
    * @return RedBean_OODBBean    The created and stored bean
    */
   public function post( array $request_data ) {
-    // Exclude the reserved fields from posted data
+    // Check whether the request data is complete
+    if ( !empty($this->_post_fields) || !RBB::is_complete($request_data, $this->_post_fields) ) {
+      throw new BeanBase_Exception( 'Data is incomplete', BeanBase_Exception::INCOMPLETE );
+    }
+
+    // Exclude the reserved fields from request_data
     if ( !empty($this->_reserved_fields) ) {
-      $request_data = array_diff_key( $request_data, $this->_reserved_fields );
+      $request_data = RBB::strip_out( $request_data, $this->_reserved_fields );
     }
 
     // Create bean
@@ -204,18 +209,11 @@ class BaseModel {
     // Check whether the data is unique
     if ( !empty($this->_unique_fields) ) {
       $bean = RBB::set_unique( $bean, $this->_unique_fields );
-      //$bean->setMeta( 'buildcommand.unique', array($this->_unique_fields) ) ;
-      //RBB::uniqueness_check( $bean, $this->_unique_fields );
-    }
-
-    // Check whether the data is complete
-    if ( !empty($this->_post_fields) ) {
-      RBB::completeness_check( $bean, $this->_post_fields );
     }
 
     // Add the updated timestamp
     if ( in_array(C::RB_CREATED, $this->_reserved_fields) ) {
-      $bean = RBB::insert_time_stamp( $bean, C::RB_CREATED );
+      $bean = RBB::insert_timestamp( $bean, C::RB_CREATED, new DateTime('now') );
     }
 
     // Process association filter if applicable
@@ -251,28 +249,27 @@ class BaseModel {
    * @return RedBean_OODBBean       The updated bean
    */
   public function put( $id, array $request_data ) {
-    $bean = $this->get( $id );
-
-    // Exclude the reserved fields from given data
-    if ( !empty($this->_reserved_fields) ) {
-      $request_data = array_diff_key( $request_data, $this->_reserved_fields );
+    // Check whether the request data is complete
+    if ( !empty($this->_put_fields) || !RBB::is_complete($bean->export(), $this->_put_fields) ) {
+      throw new BeanBase_Exception( 'Data is incomplete', BeanBase_Exception::INCOMPLETE );
     }
+
+    // Exclude the reserved fields from request_data
+    if ( !empty($this->_reserved_fields) ) {
+      $request_data = RBB::strip_out( $request_data, $this->_reserved_fields );
+    }
+
+    // Get bean by id
+    $bean = $this->get( $id );
 
     // Check whether the data is unique
     if ( !empty($this->_unique_fields) ) {
       $bean = RBB::set_unique( $bean, $this->_unique_fields );
-      //$bean->setMeta( 'buildcommand.unique', array($this->_unique_fields) ) ;
-      //RBB::uniqueness_check( $bean, $this->_unique_fields );
-    }
-
-    // Check whether the request data is complete
-    if ( !empty($this->_put_fields) ) {
-      RBB::completeness_check( $bean, $this->_post_fields );
     }
 
     // Add the updated timestamp
     if ( in_array(C::RB_UPDATED, $this->_reserved_fields) ) {
-      $bean = RBB::insert_time_stamp( $bean, C::RB_UPDATED );
+      $bean = RBB::insert_timestamp( $bean, C::RB_UPDATED, new DateTime('now') );
     }
 
     // Process association filter if applicable
