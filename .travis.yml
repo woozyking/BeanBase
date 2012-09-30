@@ -1,0 +1,12 @@
+language: php
+php:
+  - 5.3
+  - 5.4
+
+before_script:
+  # Prepare all DBs
+  - touch /tmp/beanbasetest.db # SQLite
+  - mysql -e 'create database beanbasetest' # MySQL
+  - psql -c 'create database beanbasetest;' -U postgres # PgSQL
+
+script: php tests/BeanBase_Tests.php
