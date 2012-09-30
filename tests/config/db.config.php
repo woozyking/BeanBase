@@ -34,3 +34,10 @@ interface SQLite {
   const PASS = "";
 
 }
+
+interface Selector {
+
+  const MySQL = 1;
+  const PgSQL = 1;
+
+}

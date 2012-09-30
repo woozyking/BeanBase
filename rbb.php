@@ -66,23 +66,12 @@ interface BeanBase_Constants_CRUD {
 }
 
 /**
- * Aggregates all the constants for easy access
- *
- * Poor man's namespacing
- *
- * @package BeanBase
- * @subpackage Constants
- */
-class C implements BeanBase_Constants_Relation, BeanBase_Constants_CRUD {
-}
-
-/**
  * The BeanBase utility class
  *
  * @package BeanBase
  * @subpackage Util
  */
-class RBB {
+class RBB implements BeanBase_Constants_Relation, BeanBase_Constants_CRUD {
 
   // ==================================================================
   //
@@ -171,24 +160,50 @@ class RBB {
    *
    * Since RBB::associate() method writes back to DB, this method would do it too.
    *
-   * @param  RedBean_OOOBBean $bean   The bean
+   * @param  RedBean_OODBBean $bean   The bean
    * @param  array            $data   The data
    * @param  array            $filter KV array with a format of rel_type => code
    */
-  public static function relate( RedBean_OOOBBean $bean, array $data, array $filter ) {
+  public static function relate( RedBean_OODBBean $bean, array $data, array $filter ) {
     if ( !self::is_assoc($data) ) {
       throw new InvalidArgumentException( 'Data array must be associative' );
     }
 
-    foreach ( $filter as $rel_type => $code ) {
-      $id_key = $rel_type.'_id';
+    foreach ( $filter as $type => $code ) {
+      $key = $type."_id";
 
-      if ( array_key_exists($id_key, $data) ) {
-        $rel_bean = self::read( $data[$id_key] );
+      if ( isset($data[$key]) || array_key_exists($key, $data) ) {
+        if ( is_array($data[$key]) ) {
+          foreach ( $data[$key] as $id ) {
+            $rel = self::read( $id, $type );
 
-        self::associate( $bean, $rel_bean, $code );
+            self::associate( $bean, $rel, $code );
+          }
+        } else {
+          $rel = self::read( $data[$key], $type );
+
+          self::associate( $bean, $rel, $code );
+        }
       }
     }
+
+    // foreach ( $filter as $rel_type => $code ) {
+    //   $id_key = $rel_type.'_id';
+
+    //   if ( array_key_exists($id_key, $data) ) {
+    //     if ( is_array( $data[$id_key]) ) {
+    //       foreach ( $data[$id_key] as $id ) {
+    //         $rel_bean = self::read( $id, $rel_type );
+
+    //         self::associate( $bean, $rel_bean, $code );
+    //       }
+    //     } else {
+    //       $rel_bean = self::read( $data[$id_key], $rel_type );
+
+    //       self::associate( $bean, $rel_bean, $code );
+    //     }
+    //   }
+    // }
   }
 
   /**
@@ -200,65 +215,50 @@ class RBB {
    * @param  RedBean_OODBBean  $rel_bean The rel_bean to be associated
    * @param  const             $code     The constant representing one of the defined relationship codes
    */
-  public static function associcate( RedBean_OODBBean $bean, RedBean_OODBBean $rel_bean, $code) {
+  public static function associate( RedBean_OODBBean $bean, RedBean_OODBBean $rel_bean, $code) {
     switch ( $code ) {
-      case C::RB_HAS_ONE: // ONE-TO-ONE: http://redbeanphp.com/manual/association_api
-        $v1 = R::relatedOne($bean, $rel_bean->_type);
-        $v2 = R::relatedOne($rel_bean, $bean->_type);
+      case self::RB_HAS_ONE: // ONE-TO-ONE: http://redbeanphp.com/manual/association_api
+        $v1 = R::relatedOne( $bean, self::get_bean_type($rel_bean) );
+        $v2 = R::relatedOne( $rel_bean, self::get_bean_type($bean) );
 
-        if ( !isset($v1) or !isset($v2) ) {
-          throw new BeanBase_Exception_Relation( 'Relationship already exists with one or both of beans',
-            BeanBase_Exception_Relation::ONE_TO_ONE );
+        // TODO: figure out whether R::areRelated() apply to one-to-one as well
+        // if ( R::areRelated($bean, $rel_bean) ) {
+        if ( $v1 or $v2 ) {
+          throw new BeanBase_Exception_Relation( 'Relationship already exists in either or both beans',
+            BeanBase_Exception_Relation::HAS_ONE );
         }
 
         R::associate( $bean, $rel_bean );
 
         break;
-      case C::RB_HAS_MANY: // ONE-TO-MANY: http://redbeanphp.com/manual/adding_lists
-        $own_phrase = 'own'.ucfirst( $rel_bean->_type );
+      case self::RB_HAS_MANY: // ONE-TO-MANY: http://redbeanphp.com/manual/adding_lists
+        $bean_type = self::get_bean_type( $bean );
 
-        // An ugly work around of not being able to use $array[] = new_entry
-        // TODO: Need a better solution
-        if ( isset($bean->$own_phrase) ) {
-          if ( in_array($rel_bean, $bean->$own_phrase) ) {
-            throw new BeanBase_Exception_Relation( 'Relationship already established',
-              BeanBase_Exception_Relation::ONE_TO_MANY );
-          }
-
-          array_push( $bean->$own_phrase, $rel_bean );
+        if ( !$rel_bean->$bean_type ) {
+          $rel_bean->$bean_type = $bean;
         } else {
-          $bean->$own_phrase = array( $rel_bean );
+          throw new BeanBase_Exception_Relation( 'Relationship already established',
+              BeanBase_Exception_Relation::HAS_MANY );
         }
 
         break;
-      case C::RB_HAVE_MANY: // MANY-TO-MANY: http://redbeanphp.com/manual/association_api
+      case self::RB_HAVE_MANY: // MANY-TO-MANY: http://redbeanphp.com/manual/association_api
         if ( R::areRelated( $bean, $rel_bean ) ) {
           throw new BeanBase_Exception_Relation( 'Two beans already associated',
-            BeanBase_Exception_Relation::MANY_TO_MANY );
+            BeanBase_Exception_Relation::HAVE_MANY );
         }
 
         R::associate( $bean, $rel_bean );
 
         break;
-      case C::RB_BELONGS_TO: // MANY-TO-ONE: reversed ONE-TO-MANY
-        $rel_type = $rel_bean->_type;
+      case self::RB_BELONGS_TO: // MANY-TO-ONE: reversed ONE-TO-MANY
+        $rel_type = self::get_bean_type( $rel_bean );
 
-        if ( isset($bean->$rel_type) ) {
+        if ( !$bean->$rel_type ) {
+          $bean->$rel_type = $rel_bean;
+        } else {
           throw new BeanBase_Exception_Relation( 'Parent already exists',
             BeanBase_Exception_Relation::BELONGS_TO );
-        }
-
-        $own_phrase = 'own'.ucfirst( $bean->_type );
-
-        if ( isset($rel_bean->$own_phrase) ) {
-          if ( in_array($bean, $rel_bean->$own_phrase) ) {
-            throw new BeanBase_Exception_Relation( 'Relationship already established',
-              BeanBase_Exception_Relation::BELONGS_TO );
-          }
-
-          array_push( $rel_bean->$own_phrase, $bean );
-        } else {
-          $rel_bean->$own_phrase = array( $bean );
         }
 
         break;
@@ -275,6 +275,9 @@ class RBB {
       R::store( $rel_bean );
     }
   }
+
+  // TODO, method to access by relationship
+  // TODO, method to break relationships
 
   // ==================================================================
   //
