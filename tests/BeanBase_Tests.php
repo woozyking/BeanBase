@@ -8,7 +8,7 @@ if ( file_exists(__DIR__.'/config/my.db.config.php') ) {
 
 require_once( __DIR__.'/simpletest/autorun.php' );
 require_once( __DIR__.'/vendor/rb.php' );
-require_once( '../rbb.php' );
+require_once( __DIR__.'/vendor/rbb.php' );
 
 class BeanBase_Tests extends TestSuite {
 
