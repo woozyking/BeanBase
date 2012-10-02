@@ -4,11 +4,6 @@
 
 A way to start using [RedBean PHP ORM](http://redbeanphp.com/)
 
+Details, Manual, Docs & More at [BeanBase GitHub Page](http://ruli.github.com/BeanBase)
+
 > Notice: BeanBase requires [rb.php](http://redbeanphp.com/) but does not ship with it, so grab it now!
-
-## Details, Manual, Docs & More at [BeanBase GitHub Page](http://ruli.github.com/BeanBase)
-
-## Things To Be Done
-
-* [Restler](http://luracast.com/products/restler/) integration (waiting for v3 with OAuth support)
-* Examples and Manual
