@@ -30,6 +30,5 @@ Testing are done through [SimpleTest](http://www.simpletest.org/). Tests don't c
 Things To Be Done
 =================
 
-* Travis-CI
-* [Restler](http://luracast.com/products/restler/) integration
+* [Restler](http://luracast.com/products/restler/) integration (waiting for v3 with OAuth support)
 * Examples and Manual

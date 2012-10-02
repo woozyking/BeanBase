@@ -46,11 +46,13 @@
  * @package BeanBase
  * @subpackage Constants
  */
-interface BeanBase_Constants_Relation {
+interface BeanBase_Const_Relation {
+
   const RB_HAS_ONE    = 0;
   const RB_HAS_MANY   = 1;
   const RB_HAVE_MANY  = 2;
   const RB_BELONGS_TO = 3;
+
 }
 
 /**
@@ -59,10 +61,13 @@ interface BeanBase_Constants_Relation {
  * @package BeanBase
  * @subpackage Constants
  */
-interface BeanBase_Constants_CRUD {
+interface BeanBase_Const_CRUD {
+
   const RB_CREATED = "created";
   const RB_UPDATED = "updated";
   const RB_DELETED = "deleted";
+  const RB_RELATION = "relation";
+
 }
 
 /**
@@ -71,7 +76,7 @@ interface BeanBase_Constants_CRUD {
  * @package BeanBase
  * @subpackage Util
  */
-class RBB implements BeanBase_Constants_Relation, BeanBase_Constants_CRUD {
+class RBB implements BeanBase_Const_Relation, BeanBase_Const_CRUD {
 
   // ==================================================================
   //
@@ -83,19 +88,18 @@ class RBB implements BeanBase_Constants_Relation, BeanBase_Constants_CRUD {
    *
    * @param  string $type   The bean type (table name) to be created
    * @param  array  $data   Data kv-array, default: null
-   * @param  array  $filter Contains all the keys to be filtered out of $data, default: null
    *
    * @return RedBean_OODBBean The created bean
    */
-  public static function create( $type, array $data=null, array $filter=null ) {
-    if ( !is_null($data) && !self::is_assoc($data) ) {
-      throw new InvalidArgumentException( 'Data array must be associative' );
-    }
-
+  public static function create( $type, array $data=null ) {
     $bean = R::dispense( $type );
 
-    if ( !empty($filter) ) {
-      $data = self::strip_out( $data, $filter );
+    if ( empty($data) ) {
+      return $bean;
+    }
+
+    if ( !self::is_assoc($data) ) {
+      throw new InvalidArgumentException( 'Data array must be associative' );
     }
 
     $bean = $bean->import( $data );
@@ -130,24 +134,21 @@ class RBB implements BeanBase_Constants_Relation, BeanBase_Constants_CRUD {
    *
    * @param  RedBean_OODBBean $bean   The bean to be updated
    * @param  array            $data   Data kv-array
-   * @param  array            $filter Contains all the keys to be filtered out of $data
    *
    * @return RedBean_OODBBean         The updated bean
    */
-  public static function update( RedBean_OODBBean $bean, array $data=null, array $filter=null ) {
-    if ( !is_null($data) && !self::is_assoc($data) ) {
+  public static function update( RedBean_OODBBean $bean, array $data=null ) {
+    if ( empty($data) ) {
+      return $bean;
+    }
+
+    if ( !self::is_assoc($data) ) {
       throw new InvalidArgumentException( 'Data array must be associative' );
     }
 
-    $dup = R::dup( $bean );
+    $bean->import( $data );
 
-    if ( !empty($filter) ) {
-      $data = self::strip_out( $data, $filter );
-    }
-
-    $dup->import( $data );
-
-    return $dup;
+    return $bean;
   }
 
   // ==================================================================
@@ -186,24 +187,6 @@ class RBB implements BeanBase_Constants_Relation, BeanBase_Constants_CRUD {
         }
       }
     }
-
-    // foreach ( $filter as $rel_type => $code ) {
-    //   $id_key = $rel_type.'_id';
-
-    //   if ( array_key_exists($id_key, $data) ) {
-    //     if ( is_array( $data[$id_key]) ) {
-    //       foreach ( $data[$id_key] as $id ) {
-    //         $rel_bean = self::read( $id, $rel_type );
-
-    //         self::associate( $bean, $rel_bean, $code );
-    //       }
-    //     } else {
-    //       $rel_bean = self::read( $data[$id_key], $rel_type );
-
-    //       self::associate( $bean, $rel_bean, $code );
-    //     }
-    //   }
-    // }
   }
 
   /**
@@ -221,8 +204,6 @@ class RBB implements BeanBase_Constants_Relation, BeanBase_Constants_CRUD {
         $v1 = R::relatedOne( $bean, self::get_bean_type($rel_bean) );
         $v2 = R::relatedOne( $rel_bean, self::get_bean_type($bean) );
 
-        // TODO: figure out whether R::areRelated() apply to one-to-one as well
-        // if ( R::areRelated($bean, $rel_bean) ) {
         if ( $v1 or $v2 ) {
           throw new BeanBase_Exception_Relation( 'Relationship already exists in either or both beans',
             BeanBase_Exception_Relation::HAS_ONE );
@@ -308,6 +289,10 @@ class RBB implements BeanBase_Constants_Relation, BeanBase_Constants_CRUD {
   /**
    * Checks whether a given bean is complete, against a keys array
    *
+   * @deprecated This is deprecated in favor of RBB::check_complete() method
+   *             which throws a more specific exception message with which field(s)
+   *             is missing
+   *
    * @param  array   $data   The data kv-array
    * @param  array   $keys   The keys array
    *
@@ -315,12 +300,24 @@ class RBB implements BeanBase_Constants_Relation, BeanBase_Constants_CRUD {
    */
   public static function is_complete( array $data, array $keys ) {
     foreach ( $keys as $key ) {
-      if ( !array_key_exists($key, $data) ) {
+      if ( !isset($data[$key]) || !array_key_exists($key, $data) ) {
         return false;
       }
     }
 
     return true;
+  }
+
+  public static function check_complete( array $data=null, array $keys ) {
+    if ( empty($data) ) {
+        throw new BeanBase_Exception( 'Data null or empty array', BeanBase_Exception::INCOMPLETE );
+    }
+
+    foreach ( $keys as $key ) {
+      if ( !isset($data[$key]) || !array_key_exists($key, $data) ) {
+        throw new BeanBase_Exception( '$key missing', BeanBase_Exception::INCOMPLETE );
+      }
+    }
   }
 
   /**
@@ -334,7 +331,7 @@ class RBB implements BeanBase_Constants_Relation, BeanBase_Constants_CRUD {
    */
   public static function strip_out( array $data, array $keys ) {
     foreach ( $keys as $key ) {
-      if ( array_key_exists($key, $data) ) {
+      if ( isset($data[$key]) || array_key_exists($key, $data) ) {
         unset( $data[$key] );
       }
     }
@@ -386,6 +383,9 @@ class RBB implements BeanBase_Constants_Relation, BeanBase_Constants_CRUD {
   /**
    * Set unique meta for the given bean
    *
+   * @deprecated Due to its many restrictions, this is deprecated
+   *             in favor of RBB::check_unique()
+   *
    * @param RedBean_OODBBean $bean   The Bean
    * @param array            $unique Array with unique field keys
    */
@@ -394,6 +394,14 @@ class RBB implements BeanBase_Constants_Relation, BeanBase_Constants_CRUD {
 
     return $bean;
   }
+
+  // public static function check_unique( $type, array $data=null ) {
+  //   if ( empty($data) ||  )
+
+  //   foreach ( $data as $key => $val ) {
+  //     $bean = R::findOne( $type, ' ' )
+  //   }
+  // }
 
   /**
    * Checks if an array is associative (string keys) or sequential (numeric keys)

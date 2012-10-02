@@ -10,4 +10,4 @@ Coverage Updates
 ----------------
 
 * RBB - 100%
-* BaseModel - 0%
+* BaseModel - 100%
