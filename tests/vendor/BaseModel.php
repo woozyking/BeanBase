@@ -267,7 +267,7 @@ class BaseModel {
    * @return mixed          Array of beans
    */
   public function batch_get( $offset, $limit, $order='id' ) {
-    return R::findAll( $this->type, ' ORDER BY '.$order.' LIMIT '.$offset.', '.$limit );
+    return R::findAll( $this->type, ' ORDER BY '.$order.' LIMIT '.$limit.' OFFSET '.$offset );
   }
 
 }
