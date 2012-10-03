@@ -9,4 +9,4 @@ before_script:
   - mysql -e 'create database beanbasetest' # MySQL
   - psql -c 'create database beanbasetest;' -U postgres # PgSQL
 
-script: php tests/BeanBase_Tests.php
+script: php BeanBase_Tests.php
