@@ -1,17 +1,17 @@
 <?php
 
-if ( file_exists(__DIR__.'/config/my.db.config.php') ) {
-  require_once( __DIR__.'/config/my.db.config.php' );
+if ( file_exists(__DIR__.'/tests/config/my.db.config.php') ) {
+  require_once( __DIR__.'/tests/config/my.db.config.php' );
 } else {
-  require_once( __DIR__.'/config/db.config.php' );
+  require_once( __DIR__.'/tests/config/db.config.php' );
 }
 
-require_once( __DIR__.'/simpletest/autorun.php' );
-require_once( __DIR__.'/vendor/rb.php' );
-require_once( __DIR__.'/vendor/rbb.php' );
-require_once( __DIR__.'/vendor/BaseModel.php' );
+require_once( __DIR__.'/tests/simpletest/autorun.php' );
+require_once( __DIR__.'/tests/vendor/rb.php' );
+require_once( __DIR__.'/rbb.php' );
+require_once( __DIR__.'/BaseModel.php' );
 
-require_once( __DIR__.'/unit/BaseTestCase.php' );
+require_once( __DIR__.'/tests/unit/BaseTestCase.php' );
 
 class BeanBase_Tests extends TestSuite {
 
