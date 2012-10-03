@@ -1,7 +1,7 @@
 <?php
 
 class UtilTestModel extends BaseModel {
-  public $type = "utilTest";
+  public $type = "utiltest";
 }
 
 class BaseModel_Utils extends BaseTestCase {

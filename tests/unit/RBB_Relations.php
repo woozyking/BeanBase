@@ -15,7 +15,7 @@ class RBB_Relations extends BaseTestCase {
     //
     // ------------------------------------------------------------------
     $test_type_1 = "test";
-    $test_type_2 = "testRel";
+    $test_type_2 = "testrel";
 
     $test_bean_1 = R::dispense( $test_type_1 );
     $test_bean_2 = R::dispense( $test_type_2 );
@@ -48,8 +48,8 @@ class RBB_Relations extends BaseTestCase {
     // Test ONE-TO-MANY
     //
     // ------------------------------------------------------------------
-    $test_type_1 = "tOne";
-    $test_type_2 = "tTwo";
+    $test_type_1 = "test1";
+    $test_type_2 = "test2";
     $test_bean_1 = R::dispense( $test_type_1 );
     $num_rel     = 2;
 
@@ -84,8 +84,8 @@ class RBB_Relations extends BaseTestCase {
     // Test MANY-TO-MANY
     //
     // ------------------------------------------------------------------
-    $test_type_1 = "tThree";
-    $test_type_2 = "tFour";
+    $test_type_1 = "t3";
+    $test_type_2 = "t4";
 
     list( $b1, $b2 ) = R::dispense( $test_type_1, 2 );
     list( $r1, $r2 ) = R::dispense( $test_type_2, 2 );
@@ -136,8 +136,8 @@ class RBB_Relations extends BaseTestCase {
     // Test BELONGS-TO
     //
     // ------------------------------------------------------------------
-    $test_type_1 = "tFive";
-    $test_type_2 = "tSix";
+    $test_type_1 = "t5";
+    $test_type_2 = "t6";
     $test_bean   = R::dispense( $test_type_1 );
     $num_rel     = 2;
 
@@ -170,9 +170,9 @@ class RBB_Relations extends BaseTestCase {
     //
     // ------------------------------------------------------------------
     $type_1 = "t1";
-    $type_2 = "hasOne";
-    $type_3 = "hasMany";
-    $type_4 = "haveMany";
+    $type_2 = "has1";
+    $type_3 = "hsm";
+    $type_4 = "hvm";
     $type_5 = "belongs";
 
     list( $b1, $b2 ) = R::dispense( $type_1, 2 );

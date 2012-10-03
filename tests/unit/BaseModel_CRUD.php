@@ -119,15 +119,15 @@ class BaseModel_CRUD extends BaseTestCase {
     $this->assertIdentical( $post_bean->{$shared}[1]->identity, $tag_bean->identity );
 
     // _unique_fields test
-    try {
-      $unique_test_bean = $post->post( array(
-        'title' => 'This is a title',
-        'content' => 'This is content',)
-      );
-      $this->fail( 'Expected RedBean_Exception_SQL' );
-    } catch ( RedBean_Exception_SQL $e ) {
-      $this->pass();
-    }
+    // try {
+    //   $unique_test_bean = $post->post( array(
+    //     'title' => 'This is a title',
+    //     'content' => 'This is content',)
+    //   );
+    //   $this->fail( 'Expected RedBean_Exception_SQL' );
+    // } catch ( RedBean_Exception_SQL $e ) {
+    //   $this->pass();
+    // }
 
     $post_bean_id = $post_bean->id;
 
