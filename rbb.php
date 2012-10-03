@@ -40,6 +40,12 @@
  * @link        https://github.com/ruli/BeanBase
  */
 
+interface BeanBase_Const {
+
+  const VERSION = "1.0";
+
+}
+
 /**
  * Relation constants
  *
@@ -76,7 +82,7 @@ interface BeanBase_Const_CRUD {
  * @package BeanBase
  * @subpackage Util
  */
-class RBB implements BeanBase_Const_Relation, BeanBase_Const_CRUD {
+class RBB implements BeanBase_Const_Relation, BeanBase_Const_CRUD, BeanBase_Const {
 
   // ==================================================================
   //
