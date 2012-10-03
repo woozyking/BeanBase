@@ -9,5 +9,7 @@ The tests are written in [SimpleTest framework](http://www.simpletest.org/).
 Coverage Updates
 ----------------
 
-* RBB - 100%
-* BaseModel - 100%
+* RBB - 90%
+    * Lacking RBB::set_unique() test due to an issue with RedBean 3.3, [Discussion](https://groups.google.com/forum/?fromgroups=#!topic/redbeanorm/ysQejl2SWD4)
+* BaseModel - 90%
+    * Due to the same reason for RBB above
