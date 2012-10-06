@@ -51,14 +51,14 @@ class BaseModel {
 
   public $type = "";
 
-  protected $_asso_filter = array(
+  public $asso_filter = array(
     // 'bean_type' => RB_HAS_ONE,
     // 'bean_type' => RB_HAS_MANY,
     // 'bean_type' => RB_HAVE_MANY,
     // 'bean_type' => RB_BELONGS_TO
   );
 
-  protected $_reserved_fields = array(
+  public $reserved_fields = array(
     // Default fields
     RBB::RB_DELETED,
     RBB::RB_CREATED,
@@ -66,11 +66,11 @@ class BaseModel {
     RBB::RB_RELATION
   );
 
-  protected $_post_fields = array(); // required create fields
+  public $post_fields = array(); // required create fields
 
-  protected $_put_fields = array(); // required update fields
+  public $put_fields = array(); // required update fields
 
-  protected $_unique_fields = array(); // properties that should be unique
+  public $unique_fields = array(); // properties that should be unique
 
   // ==================================================================
   //
@@ -90,8 +90,8 @@ class BaseModel {
    */
   public function post( array $request_data=null ) {
     // Check data completeness
-    if ( !empty($this->_post_fields) ) {
-      RBB::check_complete( $request_data, $this->_post_fields );
+    if ( !empty($this->post_fields) ) {
+      RBB::check_complete( $request_data, $this->post_fields );
     }
 
     if ( !empty($request_data) ) {
@@ -105,14 +105,14 @@ class BaseModel {
       }
 
       // Strip out reserved fields from data
-      if ( !empty($this->_reserved_fields) ) {
-        $request_data = RBB::strip_out( $request_data, $this->_reserved_fields );
+      if ( !empty($this->reserved_fields) ) {
+        $request_data = RBB::strip_out( $request_data, $this->reserved_fields );
       }
 
       $bean = RBB::create( $this->type, $request_data );
 
-      if ( !empty($this->_unique_fields) ) {
-        $bean = RBB::set_unique( $bean, $this->_unique_fields );
+      if ( !empty($this->unique_fields) ) {
+        $bean = RBB::set_unique( $bean, $this->unique_fields );
       }
     } else {
       $bean = RBB::create( $this->type );
@@ -121,8 +121,8 @@ class BaseModel {
     $bean = RBB::insert_timestamp( $bean, RBB::RB_CREATED, new DateTime('now') );
 
     // Process association filter if applicable
-    if ( !empty($relations) && !empty($this->_asso_filter) ) {
-      RBB::relate( $bean, $relations, $this->_asso_filter );
+    if ( !empty($relations) && !empty($this->asso_filter) ) {
+      RBB::relate( $bean, $relations, $this->asso_filter );
     }
 
     if ( RBB::is_modified($bean) ) {
@@ -154,8 +154,8 @@ class BaseModel {
    */
   public function put( $id, array $request_data=null ) {
     // Check data completeness
-    if ( !empty($this->_put_fields) ) {
-      RBB::check_complete( $request_data, $this->_put_fields );
+    if ( !empty($this->put_fields) ) {
+      RBB::check_complete( $request_data, $this->put_fields );
     }
 
     // Get bean by id
@@ -173,8 +173,8 @@ class BaseModel {
 
       // Strip out reserved fields from data
       // including RBB::RB_RELATION
-      if ( !empty($this->_reserved_fields) ) {
-        $request_data = RBB::strip_out( $request_data, $this->_reserved_fields );
+      if ( !empty($this->reserved_fields) ) {
+        $request_data = RBB::strip_out( $request_data, $this->reserved_fields );
       }
 
       // For update only
@@ -191,13 +191,13 @@ class BaseModel {
       // Insert timestamp
       $bean = RBB::insert_timestamp( $bean, RBB::RB_UPDATED, new DateTime('now') );
 
-      if ( !empty($this->_unique_fields) ) {
-        $bean = RBB::set_unique( $bean, $this->_unique_fields );
+      if ( !empty($this->unique_fields) ) {
+        $bean = RBB::set_unique( $bean, $this->unique_fields );
       }
 
       // Process association filter if applicable
-      if ( !empty($relations) && !empty($this->_asso_filter) ) {
-        RBB::relate( $bean, $relations, $this->_asso_filter );
+      if ( !empty($relations) && !empty($this->asso_filter) ) {
+        RBB::relate( $bean, $relations, $this->asso_filter );
       }
     }
 
@@ -215,7 +215,7 @@ class BaseModel {
       $bean->{RBB::RB_DELETED} = true;
 
       // Add the updated timestamp
-      if ( in_array(RBB::RB_UPDATED, $this->_reserved_fields) ) {
+      if ( in_array(RBB::RB_UPDATED, $this->reserved_fields) ) {
         $bean = RBB::insert_timestamp( $bean, RBB::RB_UPDATED, new DateTime('now') );
       }
 

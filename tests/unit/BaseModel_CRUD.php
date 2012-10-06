@@ -4,19 +4,19 @@ class PostModel extends BaseModel {
 
   public $type = "post";
 
-  protected $_post_fields = array(
+  public $post_fields = array(
       'title',
       'content'
     );
 
-  protected $_asso_filter = array(
+  public $asso_filter = array(
       "super"   => RBB::RB_HAS_ONE,
       "comment" => RBB::RB_HAS_MANY,
       "user"    => RBB::RB_BELONGS_TO,
       "tag"     => RBB::RB_HAVE_MANY
     );
 
-  protected $_unique_fields = array(
+  public $unique_fields = array(
       'title'
     );
 
@@ -88,7 +88,7 @@ class BaseModel_CRUD extends BaseTestCase {
         ),
       );
 
-    // _post_fields test
+    // post_fields test
     try {
       $post_bean = $post->post();
       $this->fail( 'Expected BeanBase_Exception' );
@@ -107,7 +107,7 @@ class BaseModel_CRUD extends BaseTestCase {
 
     $this->assertIdentical( $post_bean->identity, $request['identity'] );
 
-    // _asso_filter test
+    // asso_filter test
     $this->assertIdentical( R::relatedOne($post_bean, $super->type)->identity, $super_bean->identity );
 
     $own = "own".ucfirst($comment->type);
@@ -118,16 +118,16 @@ class BaseModel_CRUD extends BaseTestCase {
     $shared = "shared".ucfirst($tag->type);
     $this->assertIdentical( $post_bean->{$shared}[1]->identity, $tag_bean->identity );
 
-    // _unique_fields test
-    // try {
-    //   $unique_test_bean = $post->post( array(
-    //     'title' => 'This is a title',
-    //     'content' => 'This is content',)
-    //   );
-    //   $this->fail( 'Expected RedBean_Exception_SQL' );
-    // } catch ( RedBean_Exception_SQL $e ) {
-    //   $this->pass();
-    // }
+    // unique_fields test
+    try {
+      $unique_test_bean = $post->post( array(
+        'title' => 'This is a title',
+        'content' => 'This is content',)
+      );
+      $this->fail( 'Expected RedBean_Exception_SQL' );
+    } catch ( RedBean_Exception_SQL $e ) {
+      $this->pass();
+    }
 
     $post_bean_id = $post_bean->id;
 

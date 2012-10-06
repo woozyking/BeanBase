@@ -90,7 +90,7 @@ class RBB implements BeanBase_Const_Relation, BeanBase_Const_CRUD, BeanBase_Cons
   //
   // ------------------------------------------------------------------
   /**
-   * Create a new bean with given type, data and an optional filter.
+   * Create a new bean with given type, data
    *
    * @param  string $type   The bean type (table name) to be created
    * @param  array  $data   Data kv-array, default: null
@@ -134,7 +134,7 @@ class RBB implements BeanBase_Const_Relation, BeanBase_Const_CRUD, BeanBase_Cons
   }
 
   /**
-   * Update a bean with given data and an optional filter
+   * Update a bean with optional data
    *
    * This method does not validate the fed in data ($data)
    *
@@ -174,6 +174,10 @@ class RBB implements BeanBase_Const_Relation, BeanBase_Const_CRUD, BeanBase_Cons
   public static function relate( RedBean_OODBBean $bean, array $data, array $filter ) {
     if ( !self::is_assoc($data) ) {
       throw new InvalidArgumentException( 'Data array must be associative' );
+    }
+
+    if ( !self::is_assoc($filter) ) {
+      throw new InvalidArgumentException( 'Filter array must be associative' );
     }
 
     foreach ( $filter as $type => $code ) {
@@ -319,6 +323,10 @@ class RBB implements BeanBase_Const_Relation, BeanBase_Const_CRUD, BeanBase_Cons
         throw new BeanBase_Exception( 'Data null or empty array', BeanBase_Exception::INCOMPLETE );
     }
 
+    if ( !self::is_assoc($data) ) {
+      throw new InvalidArgumentException( 'Data array must be associative' );
+    }
+
     foreach ( $keys as $key ) {
       if ( !isset($data[$key]) || !array_key_exists($key, $data) ) {
         throw new BeanBase_Exception( '$key missing', BeanBase_Exception::INCOMPLETE );
@@ -336,6 +344,10 @@ class RBB implements BeanBase_Const_Relation, BeanBase_Const_CRUD, BeanBase_Cons
    * @return array        Filtered kv-array
    */
   public static function strip_out( array $data, array $keys ) {
+    if ( !self::is_assoc($data) ) {
+      throw new InvalidArgumentException( 'Data array must be associative' );
+    }
+
     foreach ( $keys as $key ) {
       if ( isset($data[$key]) || array_key_exists($key, $data) ) {
         unset( $data[$key] );
@@ -355,10 +367,14 @@ class RBB implements BeanBase_Const_Relation, BeanBase_Const_CRUD, BeanBase_Cons
    * @return array         Filtered kv-array
    */
   public static function keep_only( array $data, array $keys ) {
+    if ( !self::is_assoc($data) ) {
+      throw new InvalidArgumentException( 'Data array must be associative' );
+    }
+
     $filtered = array();
 
     foreach ( $keys as $key ) {
-      if ( array_key_exists($key, $data) ) {
+      if ( isset($data[$key]) || array_key_exists($key, $data) ) {
         $filtered[$key] = $data[$key];
       }
     }
@@ -376,9 +392,13 @@ class RBB implements BeanBase_Const_Relation, BeanBase_Const_CRUD, BeanBase_Cons
    *
    * @return RedBean_OODBBean              The modified bean
    */
-  public static function insert_timestamp( RedBean_OODBBean $bean, $property, DateTime $timestamp, $time_format='Y-m-d H:i:s' ) {
+  public static function insert_timestamp( RedBean_OODBBean $bean, $property, DateTime $timestamp=null, $time_format='Y-m-d H:i:s' ) {
     if ( !is_string($property) ) {
       throw new InvalidArgumentException( 'Timestamp property must be a string' );
+    }
+
+    if ( null === $timestamp ) {
+      $timestamp = new DateTime( 'now' );
     }
 
     $bean->$property = $timestamp->format( $time_format );
