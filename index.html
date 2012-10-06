@@ -1,78 +1,75 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Beanbase : A way to start using RedBean PHP ORM" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>BeanBase by ruli</title>
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Beanbase</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
-
   <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">BeanBase</h1>
+        <p class="header">A way to start using RedBean PHP ORM</p>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/ruli/BeanBase">View on GitHub</a>
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/ruli/BeanBase/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/ruli/BeanBase/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/ruli/BeanBase">View On GitHub</a></li>
+        </ul>
 
-          <h1 id="project_title">Beanbase</h1>
-          <h2 id="project_tagline">A way to start using RedBean PHP ORM</h2>
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/ruli">ruli</a></p>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/ruli/BeanBase/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/ruli/BeanBase/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
+      </header>
+      <section>
         <h1>BeanBase</h1>
 
-<p>A way to start using <a href="http://redbeanphp.com/">RedBean PHP ORM</a></p>
+<p>The one purpose of creating BeanBase is to make <a href="http://redbeanphp.com/">RedBeanPHP: Powerful ORM</a> even easier to use...<a href="https://github.com/ruli/BeanBase/wiki">Skip to wiki (API docs and manual)</a></p>
+
+<p>A slight taste with a use case:</p>
 
 <blockquote>
-<p>Notice: BeanBase requires <a href="http://redbeanphp.com/">rb.php</a> but does not ship with it, so grab it now!</p>
+<p>The developer should be able to programmatically store a job entry into the database, given the job information (title, description), without touching a line of SQL.</p>
 </blockquote>
 
-<ul>
-<li>Based on <a href="http://redbeanphp.com/">RedBean PHP ORM</a>
-</li>
-<li>Aims to make RedBean even easier to use with BeanBase utility class</li>
-<li>Offers a BaseModel to start modeling your data with ease. Unlike FUSE (that's bundled with RedBean), this BaseModel is rather old fashioned which could be used in almost all PHP MVC frameworks (see <a href="#integrations">Integrations</a>). Though you're definitely encouraged to checkout <a href="http://redbeanphp.com/manual/models_and_fuse">FUSE</a> which is really neat and powerful.</li>
-</ul><h2>Components</h2>
+<h3>With RBB:</h3>
 
-<ul>
-<li>RBB: utility class that wraps on top of RedBean</li>
-<li>BaseModel: a base model that offers out of the box CRUD operations, relational operations, and other utilities to help with your DB interaction needs, by leveraging the power of RBB.</li>
-</ul><h2>Integrations</h2>
+<div class="highlight"><pre><span class="nv">$data</span><span class="p">[</span><span class="s1">'title'</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'title'</span><span class="p">];</span>
+<span class="nv">$data</span><span class="p">[</span><span class="s1">'description'</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'description'</span><span class="p">];</span>
 
-<ul>
-<li>CI (CodeIgniter) at <a href="https://github.com/ruli/BeanBase-CI">BeanBase-CI</a>
-</li>
-</ul><h2>Things To Be Done</h2>
+<span class="nv">$bean</span> <span class="o">=</span> <span class="nx">RBB</span><span class="o">::</span><span class="na">create</span><span class="p">(</span> <span class="s1">'job'</span><span class="p">,</span> <span class="nv">$data</span> <span class="p">);</span>
 
-<ul>
-<li>
-<a href="http://luracast.com/products/restler/">Restler</a> integration (waiting for v3 with OAuth support)</li>
-<li>Examples and Manual</li>
-</ul>
+<span class="nv">$bean_id</span> <span class="o">=</span> <span class="nx">R</span><span class="o">::</span><span class="na">store</span><span class="p">(</span> <span class="nv">$bean</span> <span class="p">);</span> <span class="c1">// Use vanilla RedBeanPHP to store the bean</span>
+</pre></div>
+
+<h3>Now with BaseModel:</h3>
+
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">JobModel</span> <span class="k">extends</span> <span class="nx">BaseModel</span> <span class="p">{</span>
+  <span class="k">public</span> <span class="nv">$type</span> <span class="o">=</span> <span class="s2">"job"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nv">$data</span><span class="p">[</span><span class="s1">'title'</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'title'</span><span class="p">];</span>
+<span class="nv">$data</span><span class="p">[</span><span class="s1">'description'</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'description'</span><span class="p">];</span>
+
+<span class="nv">$job</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">JobModel</span><span class="p">();</span>
+<span class="nv">$bean</span> <span class="o">=</span> <span class="nv">$job</span><span class="o">-&gt;</span><span class="na">post</span><span class="p">(</span> <span class="nv">$data</span> <span class="p">);</span>
+</pre></div>
+
+<p>Ready? <a href="https://github.com/ruli/BeanBase/wiki">Dive in!</a></p>
       </section>
-    </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Beanbase maintained by <a href="https://github.com/ruli">ruli</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
       </footer>
     </div>
-
-    
-
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
   </body>
 </html>
