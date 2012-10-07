@@ -8,13 +8,13 @@ abstract class BaseTestCase extends UnitTestCase {
     R::setup( 'sqlite:'.SQLite::FILE, SQLite::USER, SQLite::PASS );
 
     if ( Selector::MySQL ) {
-      $this->_selectors[] = 'MySQL';
+      $this->_selectors[] = "MySQL";
 
       R::addDatabase( 'MySQL', 'mysql:host='.MySQL::HOST.';dbname='.MySQL::DB, MySQL::USER, MySQL::PASS, false );
     }
 
     if ( Selector::PgSQL ) {
-      $this->_selectors[] = 'PgSQL';
+      $this->_selectors[] = "PgSQL";
 
       R::addDatabase( 'PgSQL', 'pgsql:host='.PgSQL::HOST.';dbname='.PgSQL::DB.'', PgSQL::USER, PgSQL::PASS, false );
     }

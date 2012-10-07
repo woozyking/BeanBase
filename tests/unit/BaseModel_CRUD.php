@@ -1,5 +1,6 @@
 <?php
 
+// TODO: add self reference tests
 class PostModel extends BaseModel {
 
   public $type = "post";
