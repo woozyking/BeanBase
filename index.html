@@ -34,33 +34,53 @@
 
 <p>The one purpose of creating BeanBase is to make <a href="http://redbeanphp.com/">RedBeanPHP: Powerful ORM</a> even easier to use...<a href="https://github.com/ruli/BeanBase/wiki">Skip to wiki (API docs and manual)</a></p>
 
-<p>A slight taste with a use case:</p>
+<p>A slight taste with some use cases:</p>
 
 <blockquote>
-<p>The developer should be able to programmatically store a job entry into the database, given the job information (title, description), without touching a line of SQL.</p>
+<ol>
+<li>The user should be able to create a category, and some articles.</li>
+<li>The user should be able to assign any number of articles under a category.</li>
+<li>The user should be able to fetch all articles that belongs to the same category.</li>
+<li>The user should be able to figure out what category an article belongs to.</li>
+</ol>
 </blockquote>
 
-<h3>With RBB:</h3>
+<p>Quick Implementation:</p>
 
-<div class="highlight"><pre><span class="nv">$data</span><span class="p">[</span><span class="s1">'title'</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'title'</span><span class="p">];</span>
-<span class="nv">$data</span><span class="p">[</span><span class="s1">'description'</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'description'</span><span class="p">];</span>
+<div class="highlight"><pre><span class="c1">// Mock data for articles</span>
+<span class="nv">$art_data_1</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+  <span class="s1">'title'</span> <span class="o">=&gt;</span> <span class="s1">'Article 1'</span><span class="p">,</span>
+  <span class="s1">'body'</span> <span class="o">=&gt;</span> <span class="s1">'The content of this article...'</span>
+<span class="p">);</span>
 
-<span class="nv">$bean</span> <span class="o">=</span> <span class="nx">RBB</span><span class="o">::</span><span class="na">create</span><span class="p">(</span> <span class="s1">'job'</span><span class="p">,</span> <span class="nv">$data</span> <span class="p">);</span>
+<span class="nv">$art_data_2</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+  <span class="s1">'title'</span> <span class="o">=&gt;</span> <span class="s1">'Article 2'</span><span class="p">,</span>
+  <span class="s1">'body'</span> <span class="o">=&gt;</span> <span class="s1">'The content of another article...'</span>
+<span class="p">);</span>
 
-<span class="nv">$bean_id</span> <span class="o">=</span> <span class="nx">R</span><span class="o">::</span><span class="na">store</span><span class="p">(</span> <span class="nv">$bean</span> <span class="p">);</span> <span class="c1">// Use vanilla RedBeanPHP to store the bean</span>
-</pre></div>
+<span class="c1">// Create and store the article</span>
+<span class="nv">$art_bean_1</span> <span class="o">=</span> <span class="nx">RBB</span><span class="o">::</span><span class="na">create</span><span class="p">(</span> <span class="s1">'article'</span><span class="p">,</span> <span class="nv">$art_data_1</span> <span class="p">);</span>
+<span class="nv">$art_bean_2</span> <span class="o">=</span> <span class="nx">RBB</span><span class="o">::</span><span class="na">create</span><span class="p">(</span> <span class="s1">'article'</span><span class="p">,</span> <span class="nv">$art_data_2</span> <span class="p">);</span>
 
-<h3>Now with BaseModel:</h3>
+<span class="c1">// Mock data for a category</span>
+<span class="nv">$cat_data</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+  <span class="s1">'name'</span> <span class="o">=&gt;</span> <span class="s1">'Category 1'</span>
+<span class="p">);</span>
 
-<div class="highlight"><pre><span class="k">class</span> <span class="nc">JobModel</span> <span class="k">extends</span> <span class="nx">BaseModel</span> <span class="p">{</span>
-  <span class="k">public</span> <span class="nv">$type</span> <span class="o">=</span> <span class="s2">"job"</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="c1">// Create and store the category</span>
+<span class="nv">$cat_bean</span> <span class="o">=</span> <span class="nx">RBB</span><span class="o">::</span><span class="na">create</span><span class="p">(</span> <span class="s1">'category'</span><span class="p">,</span> <span class="nv">$cat_data</span> <span class="p">);</span>
 
-<span class="nv">$data</span><span class="p">[</span><span class="s1">'title'</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'title'</span><span class="p">];</span>
-<span class="nv">$data</span><span class="p">[</span><span class="s1">'description'</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'description'</span><span class="p">];</span>
+<span class="c1">// Establish association, we decide that the relation is</span>
+<span class="c1">// ONE-TO-MANY, Which means one category owns many articles</span>
+<span class="c1">// or many articles belong to one category</span>
+<span class="c1">// RBB::associate() stores beans as well</span>
+<span class="nx">RBB</span><span class="o">::</span><span class="na">associate</span><span class="p">(</span> <span class="nv">$art_bean_1</span><span class="p">,</span> <span class="nx">RBB</span><span class="o">::</span><span class="na">RB_BELONGS_TO</span><span class="p">,</span> <span class="nv">$cat_bean</span> <span class="p">);</span>
+<span class="nx">RBB</span><span class="o">::</span><span class="na">associate</span><span class="p">(</span> <span class="nv">$cat_bean</span><span class="p">,</span> <span class="nx">RBB</span><span class="o">::</span><span class="na">RB_HAS_MANY</span><span class="p">,</span> <span class="nv">$art_bean_2</span> <span class="p">);</span>
 
-<span class="nv">$job</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">JobModel</span><span class="p">();</span>
-<span class="nv">$bean</span> <span class="o">=</span> <span class="nv">$job</span><span class="o">-&gt;</span><span class="na">post</span><span class="p">(</span> <span class="nv">$data</span> <span class="p">);</span>
+<span class="c1">// Fetch articles by given category</span>
+<span class="nv">$articles</span> <span class="o">=</span> <span class="nx">RBB</span><span class="o">::</span><span class="na">get_related</span><span class="p">(</span> <span class="nv">$cat_bean</span><span class="p">,</span> <span class="nx">RBB</span><span class="o">::</span><span class="na">RB_HAS_MANY</span><span class="p">,</span> <span class="s1">'article'</span> <span class="p">);</span>
+
+<span class="nb">var_dump</span><span class="p">(</span> <span class="nv">$articles</span> <span class="p">);</span> <span class="c1">// which will result in an array of article bean objects</span>
 </pre></div>
 
 <p>Ready? <a href="https://github.com/ruli/BeanBase/wiki">Dive in!</a></p>
