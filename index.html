@@ -7,7 +7,6 @@
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -16,23 +15,26 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1 class="header">BeanBase</h1>
-        <p class="header">A way to start using RedBean PHP ORM</p>
+        <h1>BeanBase</h1>
+        <p>A way to start using RedBean PHP ORM</p>
+
+        <p class="view"><a href="https://github.com/ruli/BeanBase">View the Project on GitHub <small>ruli/BeanBase</small></a></p>
+
 
         <ul>
-          <li class="download"><a class="buttons" href="https://github.com/ruli/BeanBase/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/ruli/BeanBase/tarball/master">Download TAR</a></li>
-          <li><a class="buttons github" href="https://github.com/ruli/BeanBase">View On GitHub</a></li>
+          <li><a href="https://github.com/ruli/BeanBase/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/ruli/BeanBase/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/ruli/BeanBase">View On <strong>GitHub</strong></a></li>
         </ul>
-
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/ruli">ruli</a></p>
-
-
       </header>
       <section>
         <h1>BeanBase</h1>
 
-<p>The one purpose of creating BeanBase is to make <a href="http://redbeanphp.com/">RedBeanPHP: Powerful ORM</a> even easier to use...<a href="https://github.com/ruli/BeanBase/wiki">Skip to wiki (API docs and manual)</a></p>
+<blockquote>
+<p><em>Best effort</em> smoke testing using Travis-CI (see my travis yaml file for environment setup details): <a href="http://travis-ci.org/ruli/BeanBase"><img src="https://secure.travis-ci.org/ruli/BeanBase.png" alt="Build Status"></a></p>
+</blockquote>
+
+<p>The one purpose of creating BeanBase is to make <a href="http://redbeanphp.com/">RedBeanPHP: Powerful ORM</a> <strong>even easier</strong> to use...<a href="https://github.com/ruli/BeanBase/wiki">Skip to wiki (API docs and manual)</a></p>
 
 <p>A slight taste with some use cases:</p>
 
@@ -41,7 +43,6 @@
 <li>The user should be able to create a category, and some articles.</li>
 <li>The user should be able to assign any number of articles under a category.</li>
 <li>The user should be able to fetch all articles that belongs to the same category.</li>
-<li>The user should be able to figure out what category an article belongs to.</li>
 </ol>
 </blockquote>
 
@@ -80,16 +81,19 @@
 <span class="c1">// Fetch articles by given category</span>
 <span class="nv">$articles</span> <span class="o">=</span> <span class="nx">RBB</span><span class="o">::</span><span class="na">get_related</span><span class="p">(</span> <span class="nv">$cat_bean</span><span class="p">,</span> <span class="nx">RBB</span><span class="o">::</span><span class="na">RB_HAS_MANY</span><span class="p">,</span> <span class="s1">'article'</span> <span class="p">);</span>
 
+<span class="k">echo</span> <span class="s2">"&lt;pre&gt;"</span><span class="p">;</span>
 <span class="nb">var_dump</span><span class="p">(</span> <span class="nv">$articles</span> <span class="p">);</span> <span class="c1">// which will result in an array of article bean objects</span>
+<span class="k">echo</span> <span class="s2">"&lt;/pre&gt;"</span><span class="p">;</span>
 </pre></div>
 
 <p>Ready? <a href="https://github.com/ruli/BeanBase/wiki">Dive in!</a></p>
       </section>
       <footer>
-        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+        <p>This project is maintained by <a href="https://github.com/ruli">ruli</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		
+    <script src="javascripts/scale.fix.js"></script>
+    
   </body>
 </html>
