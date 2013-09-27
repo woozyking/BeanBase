@@ -1,6 +1,6 @@
 # BeanBase
 
-> *Best effort* smoke testing using Travis-CI (see my travis yaml file for environment setup details): [![Build Status](https://secure.travis-ci.org/ruli/BeanBase.png)](http://travis-ci.org/ruli/BeanBase)
+> *Best effort* smoke testing using Travis-CI (see my travis yaml file for environment setup details): [![Build Status](https://secure.travis-ci.org/woozyking/BeanBase.png)](http://travis-ci.org/woozyking/BeanBase)
 
 The one purpose of creating BeanBase is to make [RedBeanPHP: Powerful ORM](http://redbeanphp.com/) __even easier__ to use...[Skip to wiki (API docs and manual)](https://github.com/ruli/BeanBase/wiki)
 
